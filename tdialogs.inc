@@ -230,19 +230,29 @@ stock Task:ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE:style, rows_per_page,
     new String:string = str_new("");
     if(tablist_header_text[0])
     {
-        format(PaginatedDialogHeaderText[playerid], 128, tablist_header_text);
-        str_append_format(string, tablist_header_text);
+        if(style != DIALOG_STYLE_TABLIST_HEADERS)
+            print("[tdialogs] Warning: Specified \"tablist_header_text\" when dialog style is not DIALOG_STYLE_TABLIST_HEADERS.");
+        else{
+            format(PaginatedDialogHeaderText[playerid], 128, tablist_header_text);
+            str_append_format(string, tablist_header_text);
+            if(strfind(tablist_header_text, "\n") == -1) str_append_format(string, "\n");
+        }
     }
 
     new rowcount = 0;
     for(new Iter:i = list_iter(PaginatedDialogRowList[playerid], rows_per_page * PaginatedDialogOffset[playerid]); iter_inside(i); iter_move_next(i))
     {
-        if(rowcount > rows_per_page) break;
+        if(rowcount >= rows_per_page){
+            if(rowcount == rows_per_page) str_append_format(string, "\n");
+            ++rowcount;
+            continue;
+        }
 
         new row[PAGINATED_DIALOG_ROW];
         iter_get_arr(i, row);
         str_append_format(string, row[DialogRowText]);
         ++rowcount;
+        if(rowcount < rows_per_page) str_append_format(string, "\n");
     }
 
     if(PaginatedDialogOffset[playerid] != 0) str_append_format(string, "%s\n", PAGINATED_PREVIOUS_TEXT);
@@ -421,11 +431,6 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
 
 stock AddPaginatedDialogRow(playerid, const text[], extraid = 0)
 {
-    if(strfind("text", "\n") == -1)
-    {
-        printf("[tdialogs] The following string was passed to AddPaginatedDialogRow without a line break: %s", text);
-        return false;
-    }
 
     if(!list_valid(PaginatedDialogRowList[playerid]))
     {

@@ -245,7 +245,7 @@ ShowOwnedVehiclesDialog(playerid)
 	{
 		if(PlayerOwnsVehicle(playerid, i))
 		{
-			format(string, sizeof(string), "%s\t%s\n", ReturnVehicleName(i), ReturnVehicleLocation(i));
+			format(string, sizeof(string), "%s\t%s", ReturnVehicleName(i), ReturnVehicleLocation(i));
 			AddPaginatedDialogRow(DialogData[playerid], string, i);
 		}
 	}
