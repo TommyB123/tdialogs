@@ -237,12 +237,11 @@ stock Task:ShowAsyncPaginatedDialog(playerid, DIALOG_STYLE:style, rows_per_page,
     new rowcount = 0;
     for(new Iter:i = list_iter(PaginatedDialogRowList[playerid], rows_per_page * PaginatedDialogOffset[playerid]); iter_inside(i); iter_move_next(i))
     {
-        if(rowcount > rows_per_page) break;
+        if(++rowcount > rows_per_page) break;
 
         new row[PAGINATED_DIALOG_ROW];
         iter_get_arr(i, row);
         str_append_format(string, row[DialogRowText]);
-        ++rowcount;
     }
 
     if(PaginatedDialogOffset[playerid] != 0) str_append_format(string, "%s\n", PAGINATED_PREVIOUS_TEXT);
