@@ -387,6 +387,7 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
             {
                 new dialog_response[DIALOG_RESPONSE];
                 dialog_response[DIALOG_RESPONSE_RESPONSE] = false;
+                dialog_response[DIALOG_RESPONSE_EXTRAID] = list_get(PaginatedDialogRowList[playerid], dialog_response[DIALOG_RESPONSE_LISTITEM], DialogRowExtra);
                 task_set_result_arr(task, dialog_response);
                 ResetPlayerPaginationVariables(playerid);
                 return 1;
