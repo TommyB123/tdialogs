@@ -113,12 +113,21 @@ public TDialogs_PlayerDisconnect(playerid, reason)
     ResetPlayerDialogVariables(playerid);
 }
 
-static stock Task:SendTDialog(playerid, dialogid, DIALOG_STYLE:style, const title[], const body[], const button1[], const button2[])
+static stock Task:SendTDialog(playerid, dialogid, DIALOG_STYLE:style, const title[], const body[], const button1[], const button2[], Task:existingtask = INVALID_TASK)
 {
     pawn_call_native("ShowPlayerDialog", "iiissss", playerid, dialogid, style, title, body, button1, button2);
 
-    DeleteDialogTask(playerid);
-    return DialogTask[playerid] = task_new();
+    if(task_valid(existingtask))
+    {
+        DialogTask[playerid] = existingtask;
+    }
+    else
+    {
+        DeleteDialogTask(playerid);
+        DialogTask[playerid] = task_new();
+    }
+
+    return DialogTask[playerid];
 }
 
 static stock Task:SendTDialog_s(playerid, dialogid, DIALOG_STYLE:style, String:title, String:body, const button1[], const button2[])
@@ -139,9 +148,9 @@ stock Task:ShowAsyncDialog_s(playerid, DIALOG_STYLE:style, String:title, String:
     return SendTDialog_s(playerid, TDIALOG_ID_FULL, style, title, body, button1, button2);
 }
 
-stock Task:ShowAsyncNumberInputDialog(playerid, const title[], const body[], const button1[], const button2[])
+stock Task:ShowAsyncNumberInputDialog(playerid, const title[], const body[], const button1[], const button2[], Task:existingtask = INVALID_TASK)
 {
-    return SendTDialog(playerid, TDIALOG_ID_NUMBER_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2);
+    return SendTDialog(playerid, TDIALOG_ID_NUMBER_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2, existingtask);
 }
 
 stock Task:ShowAsyncNumberInputDialog_s(playerid, String:title, String:body, const button1[], const button2[])
@@ -149,9 +158,9 @@ stock Task:ShowAsyncNumberInputDialog_s(playerid, String:title, String:body, con
     return SendTDialog_s(playerid, TDIALOG_ID_NUMBER_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2);
 }
 
-stock Task:ShowAsyncFloatInputDialog(playerid, const title[], const body[], const button1[], const button2[])
+stock Task:ShowAsyncFloatInputDialog(playerid, const title[], const body[], const button1[], const button2[], Task:existingtask = INVALID_TASK)
 {
-    return SendTDialog(playerid, TDIALOG_ID_FLOAT_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2);
+    return SendTDialog(playerid, TDIALOG_ID_FLOAT_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2, existingtask);
 }
 
 stock Task:ShowAsyncFloatInputDialog_s(playerid, String:title, String:body, const button1[], const button2[])
@@ -159,9 +168,9 @@ stock Task:ShowAsyncFloatInputDialog_s(playerid, String:title, String:body, cons
     return SendTDialog_s(playerid, TDIALOG_ID_FLOAT_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2);
 }
 
-stock Task:ShowAsyncStringInputDialog(playerid, const title[], const body[], const button1[], const button2[])
+stock Task:ShowAsyncStringInputDialog(playerid, const title[], const body[], const button1[], const button2[], Task:existingtask = INVALID_TASK)
 {
-    return SendTDialog(playerid, TDIALOG_ID_STRING_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2);
+    return SendTDialog(playerid, TDIALOG_ID_STRING_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2, existingtask);
 }
 
 stock Task:ShowAsyncStringInputDialog_s(playerid, String:title, String:body, const button1[], const button2[])
@@ -169,9 +178,9 @@ stock Task:ShowAsyncStringInputDialog_s(playerid, String:title, String:body, con
     return SendTDialog_s(playerid, TDIALOG_ID_STRING_INPUT, DIALOG_STYLE_INPUT, title, body, button1, button2);
 }
 
-stock Task:ShowAsyncPasswordDialog(playerid, const title[], const body[], const button1[], const button2[])
+stock Task:ShowAsyncPasswordDialog(playerid, const title[], const body[], const button1[], const button2[], Task:existingtask = INVALID_TASK)
 {
-    return SendTDialog(playerid, TDIALOG_ID_PASSWORD_INPUT, DIALOG_STYLE_PASSWORD, title, body, button1, button2);
+    return SendTDialog(playerid, TDIALOG_ID_PASSWORD_INPUT, DIALOG_STYLE_PASSWORD, title, body, button1, button2, existingtask);
 }
 
 stock Task:ShowAsyncPasswordDialog_s(playerid, String:title, String:body, const button1[], const button2[])
@@ -298,7 +307,7 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
                 //show the dialog again when a player doesn't enter a number
                 new DIALOG_STYLE:style, title[64], body[4096], button1[64], button2[64];
                 GetPlayerDialogData(playerid, style, title, 64, body, 4096, button1, 64, button2, 64); //why was this function written like this
-                task_bind(task, "_InputDialogErrorRedirect", "iissss", playerid, TDIALOG_ID_NUMBER_INPUT, title, body, button1, button2);
+                task_bind(task, "_InputDialogErrorRedirect", "iiissss", task, playerid, TDIALOG_ID_NUMBER_INPUT, title, body, button1, button2);
                 return 1;
             }
 
@@ -319,7 +328,7 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
                 //show the dialog again when a player doesn't enter a float
                 new DIALOG_STYLE:style, title[64], body[4096], button1[12], button2[12];
                 GetPlayerDialogData(playerid, style, title, 64, body, 4096, button1, 12, button2, 12); //why was this function written like this
-                task_bind(task, "_InputDialogErrorRedirect", "iissss", playerid, TDIALOG_ID_FLOAT_INPUT, title, body, button1, button2);
+                task_bind(task, "_InputDialogErrorRedirect", "iiissss", task, playerid, TDIALOG_ID_FLOAT_INPUT, title, body, button1, button2);
                 return 1;
             }
 
@@ -338,7 +347,7 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
                 //show the dialog again when a player doesn't enter any text
                 new DIALOG_STYLE:style, title[64], body[4096], button1[12], button2[12];
                 GetPlayerDialogData(playerid, style, title, 64, body, 4096, button1, 12, button2, 12); //why was this function written like this
-                task_bind(task, "_InputDialogErrorRedirect", "iissss", playerid, dialogid, title, body, button1, button2);
+                task_bind(task, "_InputDialogErrorRedirect", "iiissss", task, playerid, dialogid, title, body, button1, button2);
                 return 1;
             }
 
@@ -482,15 +491,15 @@ static ResetPlayerPaginationVariables(playerid)
     PaginatedDialogRowList[playerid] = INVALID_LIST;
 }
 
-forward _InputDialogErrorRedirect(playerid, dialogid, const title[], const body[], const button1[], const button2[]);
-public _InputDialogErrorRedirect(playerid, dialogid, const title[], const body[], const button1[], const button2[])
+forward _InputDialogErrorRedirect(Task:task, playerid, dialogid, const title[], const body[], const button1[], const button2[]);
+public _InputDialogErrorRedirect(Task:task, playerid, dialogid, const title[], const body[], const button1[], const button2[])
 {
     switch(dialogid)
     {
-        case TDIALOG_ID_NUMBER_INPUT: return task_await(ShowAsyncNumberInputDialog(playerid, title, body, button1, button2));
-        case TDIALOG_ID_FLOAT_INPUT: return task_await(ShowAsyncFloatInputDialog(playerid, title, body, button1, button2));
-        case TDIALOG_ID_STRING_INPUT: return task_await(ShowAsyncStringInputDialog(playerid, title, body, button1, button2));
-        case TDIALOG_ID_PASSWORD_INPUT: return task_await(ShowAsyncPasswordDialog(playerid, title, body, button1, button2));
+        case TDIALOG_ID_NUMBER_INPUT: return task_wait(ShowAsyncNumberInputDialog(playerid, title, body, button1, button2, task));
+        case TDIALOG_ID_FLOAT_INPUT: return task_wait(ShowAsyncFloatInputDialog(playerid, title, body, button1, button2, task));
+        case TDIALOG_ID_STRING_INPUT: return task_wait(ShowAsyncStringInputDialog(playerid, title, body, button1, button2, task));
+        case TDIALOG_ID_PASSWORD_INPUT: return task_wait(ShowAsyncPasswordDialog(playerid, title, body, button1, button2, task));
     }
     return wait_ms(1);
 }
