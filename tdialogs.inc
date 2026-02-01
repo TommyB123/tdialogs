@@ -333,6 +333,7 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
             }
 
             task_set_result(task, value);
+            return 1;
         }
         case TDIALOG_ID_STRING_INPUT, TDIALOG_ID_PASSWORD_INPUT, TDIALOG_ID_LISTITEM_TEXT:
         {
@@ -364,6 +365,7 @@ public TDialogs_DialogResponse(playerid, dialogid, response, listitem, inputtext
             }
 
             task_set_result(task, listitem);
+            return 1;
         }
         case TDIALOG_ID_CONFIRMATION:
         {
